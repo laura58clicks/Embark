@@ -1,0 +1,34 @@
+.footer-main > div.col-md-12:last-child .footer-block__title {
+    display:none;
+}
+
+.footer-main > div.col-md-12:last-child ul.link-list {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+/* 58 Clicks: quitar outline azul de foco/hover en el search del header (Embark mega menu) */
+.emm .emm-search input,
+.emm .emm-search input:hover,
+.emm .emm-search input:focus,
+.emm .emm-search input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 58 Clicks: PDP "Complete the look" (custom liquid block en templates/product.json) */
+.complete-the-look .card {
+    color: inherit;
+    padding-right: 16px;
+}
+.complete-the-look .card-media {
+    padding: 0.6rem;
+}
+.complete-the-look .card-title a {
+    color: inherit;
+    text-decoration: none;
+}
+.complete-the-look .icon-btn--quick-buy {
+    position: relative;
+}
