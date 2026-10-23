@@ -1,0 +1,221 @@
+{
+  "name": "t:section_groups.header",
+  "type": "header",
+  "sections": {
+    "sliding_text_eF8nVg": {
+      "type": "sliding-text",
+      "blocks": {
+        "text_wBxAyi": {
+          "type": "text",
+          "settings": {
+            "text": "Free shipping for orders above $XX.",
+            "link": ""
+          }
+        },
+        "text_JbPgxq": {
+          "type": "text",
+          "settings": {
+            "text": "Free shipping for orders above $XX.",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_wBxAyi",
+        "text_JbPgxq"
+      ],
+      "name": "t:sections.sliding-text.name",
+      "settings": {
+        "color_scheme": "alternative-1",
+        "text_gradient_color": "",
+        "content_order": "horizontal",
+        "font": "base",
+        "direction": "normal",
+        "speed": 5,
+        "pause_on_hover": true,
+        "sm_size_multiplier": "sm-size--small",
+        "sm_item_gap": 80,
+        "sm_image_gap": 16,
+        "sm_image_width": 60,
+        "sm_rounded_corners": false,
+        "sm_padding": 4,
+        "md_padding_top": 0,
+        "md_padding_bottom": 0,
+        "size_multiplier": "size--small",
+        "item_gap": 24,
+        "image_gap": 16,
+        "image_width": 60,
+        "rounded_corners": false,
+        "padding": 8,
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "header": {
+      "type": "header",
+      "disabled": true,
+      "settings": {
+        "color_scheme": "alternative-2",
+        "drawer_menu": "",
+        "shortcut_limit": 10,
+        "drawer_secondary_menu": "utility-bar-revamp-2026",
+        "desktop_submenu_type": "drawer",
+        "desktop_submenu_width": "full",
+        "enable_full_width": true,
+        "header_layout": "logo-center__menu-left",
+        "header_sticky_behavior": "scroll",
+        "header_uses_icons": true,
+        "region_menu": "text",
+        "header_shadow": false,
+        "logo_default": "shopify://shop_images/Embark_Logo-14_e1747e0d-9ad9-4a6a-b246-8b55d9c0abba.png",
+        "logo_max_width_desktop": 170,
+        "logo_padding_desktop": 10,
+        "logo_max_width": 90,
+        "logo_padding": 5,
+        "overlay_index": true,
+        "overlay_collection": false,
+        "overlay_handles": "",
+        "overlay_text_color": "use-background",
+        "logo_with_background_color": "shopify://shop_images/Embark_Logo-27_8d3d1c30-d972-4cab-a40e-693eb29d71b0.png",
+        "drawer_logo": "none",
+        "drawer_logo_max_width": 100
+      }
+    },
+    "embark_mega_menu_9WEipK": {
+      "type": "embark-mega-menu",
+      "blocks": {
+        "tile_MXjKV7": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Shop by",
+            "image": "shopify://shop_images/1._Shop_by_Feature.png",
+            "caption": "New for Fall",
+            "button_label": "",
+            "link": "shopify://collections/fall-favorites"
+          }
+        },
+        "tile_f3T4x7": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Bridal",
+            "image": "shopify://shop_images/2._Bridal_Feature.png",
+            "caption": "Previous Designs",
+            "button_label": "",
+            "link": "shopify://pages/previous-custom-work"
+          }
+        },
+        "tile_hraXjh": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Earrings",
+            "image": "shopify://shop_images/3._Earrings_Feature.png",
+            "caption": "Flat Back Earrings",
+            "button_label": "",
+            "link": "shopify://collections/flat-back-earrings"
+          }
+        },
+        "tile_pqFnCA": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Necklaces",
+            "image": "shopify://shop_images/4._Necklaces_Feature.png",
+            "caption": "Personalized Necklaces",
+            "button_label": "",
+            "link": "shopify://collections/personalization-necklaces"
+          }
+        },
+        "tile_GYBRgd": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Bracelets",
+            "image": "shopify://shop_images/5._Bracelets_Feature.png",
+            "caption": "Tennis Bracelets",
+            "button_label": "",
+            "link": "shopify://collections/tennis-bracelets"
+          }
+        },
+        "tile_8WeP8H": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Rings",
+            "image": "shopify://shop_images/6._Rings_Feature.png",
+            "caption": "Stackable Rings",
+            "button_label": "",
+            "link": "shopify://collections/stackable-rings"
+          }
+        },
+        "tile_Fg87ri": {
+          "type": "tile",
+          "settings": {
+            "menu_item": "Custom",
+            "image": "shopify://shop_images/7._Custom_Boton.png",
+            "caption": "",
+            "button_label": "Book a Custom Appointment",
+            "link": "shopify://pages/custom-design-process"
+          }
+        }
+      },
+      "block_order": [
+        "tile_MXjKV7",
+        "tile_f3T4x7",
+        "tile_hraXjh",
+        "tile_pqFnCA",
+        "tile_GYBRgd",
+        "tile_8WeP8H",
+        "tile_Fg87ri"
+      ],
+      "name": "Embark mega menu",
+      "settings": {
+        "use_custom_colors": true,
+        "color_scheme": "",
+        "bg": "#ffffff",
+        "ink": "#3D3D3D",
+        "muted": "#3D3D3D",
+        "line": "#dcdee3",
+        "accent": "#3D3D3D",
+        "accent_soft": "#ebebeb",
+        "tile_soft": "#e4e8f0",
+        "row1_menu": "embark-row-1",
+        "shopby_menu": "main-menu-revamp-2026",
+        "show_drop_heading": true,
+        "bold_titles": "Bridal Appointment",
+        "enable_full_width": true,
+        "logo_position": "center",
+        "logo_position_mobile": "center",
+        "menu_alignment": "center",
+        "header_sticky_behavior": "none",
+        "header_uses_icons": true,
+        "show_search": true,
+        "search_placeholder": "Search…",
+        "show_wishlist": true,
+        "wishlist_url": "",
+        "header_shadow": false,
+        "padding_top": 18,
+        "padding_bottom": 18,
+        "menu_padding": 12,
+        "menu_item_spacing": 15,
+        "mega_padding_top": 26,
+        "mega_padding_bottom": 30,
+        "padding_top_mobile": 12,
+        "padding_bottom_mobile": 12,
+        "logo": "shopify://shop_images/Embark_Logo-14_e1747e0d-9ad9-4a6a-b246-8b55d9c0abba.png",
+        "logo_text": "",
+        "logo_width": 150,
+        "logo_padding_desktop": 0,
+        "logo_max_width": 120,
+        "logo_padding": 0,
+        "overlay_index": false,
+        "overlay_collection": false,
+        "overlay_handles": "",
+        "overlay_text_color": "#ffffff",
+        "drawer_logo": "none",
+        "drawer_logo_max_width": 100
+      }
+    }
+  },
+  "order": [
+    "sliding_text_eF8nVg",
+    "header",
+    "embark_mega_menu_9WEipK"
+  ]
+}
