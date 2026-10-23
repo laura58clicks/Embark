@@ -1,0 +1,590 @@
+{%- comment -%}
+  Embark Mega Menu — réplica del plan de navegación de Embark (58 Clicks).
+  Row 1  = menú "Row 1" (About / Stores & Experiences / Book an Appointment) con dropdowns simples.
+  Level 1 = menú "Shop by": cada ítem de primer nivel es una categoría.
+  Level 2 = hijos de cada categoría = columnas (título de columna) y nietos = links.
+  Ítems sin hijos (Bestsellers, Watches) = link directo, sin dropdown.
+  Tile destacado por categoría = bloques "Featured tile" (se matchea por título del ítem).
+  Opciones tipo "Header" del theme: esquema de color, ancho completo, posición del logo,
+  sticky, sombra, íconos/texto, paddings, overlay (header transparente) y logo del drawer.
+{%- endcomment -%}
+
+{%- liquid
+  assign row1 = linklists[section.settings.row1_menu]
+  assign shopby = linklists[section.settings.shopby_menu]
+  assign bold_list = section.settings.bold_titles | downcase | split: ','
+  assign uses_icons = section.settings.header_uses_icons
+
+  # OVERLAY HEADER (igual que el Header del theme)
+  assign overlay_header = false
+  assign overlay_handles = section.settings.overlay_handles | newline_to_br | strip_newlines | split: '<br />'
+  if template.name == 'index' and section.settings.overlay_index
+    assign overlay_header = true
+  elsif template.name == 'collection' and section.settings.overlay_collection
+    assign overlay_header = true
+  elsif overlay_handles contains handle
+    assign overlay_header = true
+  endif
+  assign alt_logo = section.settings.logo_with_background_color
+  assign use_alt_logo = false
+  if overlay_header and alt_logo != blank
+    assign use_alt_logo = true
+  endif
+
+  # DRAWER LOGO
+  assign drawer_logo_img = nil
+  case section.settings.drawer_logo
+    when 'header'
+      assign drawer_logo_img = section.settings.logo
+    when 'overlay'
+      assign drawer_logo_img = alt_logo
+    when 'custom'
+      assign drawer_logo_img = section.settings.drawer_logo_image
+  endcase
+
+  capture root_classes
+    echo 'emm'
+    echo ' emm--logo-' | append: section.settings.logo_position
+    echo ' emm--mlogo-' | append: section.settings.logo_position_mobile
+    echo ' emm--nav-' | append: section.settings.menu_alignment
+    if section.settings.enable_full_width
+      echo ' emm--full'
+    endif
+    if section.settings.header_shadow
+      echo ' emm--shadow'
+    endif
+    if overlay_header
+      echo ' emm--overlay'
+    endif
+    unless section.settings.use_custom_colors
+      echo ' color-' | append: section.settings.color_scheme
+    endunless
+  endcapture
+-%}
+
+<div class="{{ root_classes | strip }}" id="emm-{{ section.id }}" data-emm data-sticky="{{ section.settings.header_sticky_behavior }}">
+  {%- comment -%} ============ ROW 1 ============ {%- endcomment -%}
+  <div class="emm-r1 emm-wrap">
+    <button type="button" class="emm-burger" aria-label="Abrir menú" aria-expanded="false" data-emm-open>
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+
+    <a href="{{ routes.root_url }}" class="emm-logo{% if use_alt_logo %} has-alt{% endif %}">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 600 | image_tag: alt: shop.name, class: 'emm-logo-img emm-logo--default' }}
+        {%- if use_alt_logo -%}
+          {{ alt_logo | image_url: width: 600 | image_tag: alt: shop.name, class: 'emm-logo-img emm-logo--alt' }}
+        {%- endif -%}
+      {%- else -%}
+        {{ section.settings.logo_text | default: shop.name }}
+      {%- endif -%}
+    </a>
+
+    <nav class="emm-r1-nav" aria-label="Brand y servicios">
+      {%- for link in row1.links -%}
+        <div class="emm-r1-item{% if link.links.size > 0 %} has-drop{% endif %}">
+          <a href="{{ link.url }}" class="emm-r1-link">{{ link.title }}</a>
+          {%- if link.links.size > 0 -%}
+            <div class="emm-r1-drop">
+              {%- if section.settings.show_drop_heading -%}<p class="emm-r1-drop-h">{{ link.title }}</p>{%- endif -%}
+              {%- for child in link.links -%}
+                {%- assign t = child.title | downcase | strip -%}
+                <a href="{{ child.url }}"{% if bold_list contains t %} class="is-bold"{% endif %}>{{ child.title }}</a>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </nav>
+
+    <div class="emm-tools">
+      {%- if section.settings.show_search -%}
+        <form action="{{ routes.search_url }}" method="get" class="emm-search" role="search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="search" name="q" placeholder="{{ section.settings.search_placeholder }}" aria-label="Buscar">
+        </form>
+      {%- endif -%}
+
+      <div class="emm-icons{% unless uses_icons %} is-text{% endunless %}">
+        {%- if section.settings.show_wishlist -%}
+          <a href="{{ section.settings.wishlist_url | default: '#' }}" aria-label="Wishlist" class="emm-wish">
+            {%- if uses_icons -%}<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>{%- else -%}Wishlist{%- endif -%}
+          </a>
+        {%- endif -%}
+        <a href="{{ routes.account_url }}" aria-label="Cuenta">
+          {%- if uses_icons -%}<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>{%- else -%}Account{%- endif -%}
+        </a>
+        <a href="{{ routes.cart_url }}" aria-label="Carrito" class="emm-cart">
+          {%- if uses_icons -%}
+            <svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+            {%- if cart.item_count > 0 -%}<span class="emm-count">{{ cart.item_count }}</span>{%- endif -%}
+          {%- else -%}
+            Cart ({{ cart.item_count }})
+          {%- endif -%}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} ============ LEVEL 1 + LEVEL 2 (desktop) ============ {%- endcomment -%}
+  <nav class="emm-r2" aria-label="Shop by">
+    <ul class="emm-r2-list emm-wrap">
+      {%- for link in shopby.links -%}
+        {%- assign has_drop = false -%}
+        {%- if link.links.size > 0 -%}{%- assign has_drop = true -%}{%- endif -%}
+        <li class="emm-l1{% if forloop.first %} is-first{% endif %}{% if has_drop %} has-mega{% endif %}">
+          <a href="{{ link.url }}" class="emm-l1-link"{% if has_drop %} aria-haspopup="true" aria-expanded="false"{% endif %}>{{ link.title }}</a>
+
+          {%- if has_drop -%}
+            {%- assign ltitle = link.title | downcase | strip -%}
+            {%- assign tile = nil -%}
+            {%- for block in section.blocks -%}
+              {%- assign btitle = block.settings.menu_item | downcase | strip -%}
+              {%- if btitle == ltitle -%}{%- assign tile = block -%}{%- endif -%}
+            {%- endfor -%}
+
+            <div class="emm-mega" style="--cols: {{ link.links.size }};">
+              <div class="emm-mega-inner emm-wrap">
+                {%- for col in link.links -%}
+                  <div class="emm-col">
+                    {%- if col.links.size > 0 -%}
+                      <p class="emm-col-h">{{ col.title }}</p>
+                      {%- for item in col.links -%}
+                        {%- assign t = item.title | downcase | strip -%}
+                        {%- assign first_word = t | slice: 0, 8 -%}
+                        <a href="{{ item.url }}"{% if first_word == 'shop all' or bold_list contains t %} class="is-bold"{% endif %}>{{ item.title }}</a>
+                      {%- endfor -%}
+                    {%- else -%}
+                      <a href="{{ col.url }}">{{ col.title }}</a>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+
+                {%- if tile -%}
+                  <a href="{{ tile.settings.link | default: '#' }}" class="emm-tile" {{ tile.shopify_attributes }}>
+                    {%- if tile.settings.image != blank -%}
+                      {{ tile.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', widths: '400, 600, 800, 1000, 1200', sizes: '(min-width: 990px) 500px, 100vw', class: 'emm-tile-img', alt: tile.settings.caption }}
+                    {%- else -%}
+                      <span class="emm-tile-ph">
+                        <svg viewBox="0 0 64 64"><circle cx="32" cy="40" r="15"/><path d="M24 22l8-10 8 10-8 6z"/></svg>
+                      </span>
+                    {%- endif -%}
+                    {%- if tile.settings.button_label != blank -%}
+                      <span class="emm-tile-btn">{{ tile.settings.button_label }}</span>
+                    {%- elsif tile.settings.caption != blank -%}
+                      <span class="emm-tile-cap">{{ tile.settings.caption }}</span>
+                    {%- endif -%}
+                  </a>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </nav>
+
+  {%- comment -%} ============ MOBILE DRAWER ============ {%- endcomment -%}
+  <div class="emm-overlay" data-emm-close hidden></div>
+  <aside class="emm-drawer" aria-label="Menú" aria-hidden="true">
+    <div class="emm-panel is-active" data-panel="root">
+      <div class="emm-dhead">
+        <button type="button" class="emm-x" aria-label="Cerrar" data-emm-close>✕</button>
+        <span class="emm-logo emm-dlogo">
+          {%- if drawer_logo_img != blank -%}
+            {{ drawer_logo_img | image_url: width: 400 | image_tag: alt: shop.name, class: 'emm-logo-img' }}
+          {%- else -%}
+            {{ section.settings.logo_text | default: shop.name }}
+          {%- endif -%}
+        </span>
+      </div>
+      <p class="emm-dlabel">{{ shopby.links.first.title | default: 'Shop by' }}</p>
+      <ul class="emm-dlist">
+        {%- for link in shopby.links -%}
+          {%- unless forloop.first -%}
+            <li>
+              {%- if link.links.size > 0 -%}
+                <button type="button" data-go="{{ section.id }}-p{{ forloop.index }}">{{ link.title }} <span>›</span></button>
+              {%- else -%}
+                <a href="{{ link.url }}">{{ link.title }} <span>›</span></a>
+              {%- endif -%}
+            </li>
+          {%- endunless -%}
+        {%- endfor -%}
+      </ul>
+      <div class="emm-dfoot">
+        {%- for link in row1.links -%}
+          <a href="{{ link.url }}"{% if forloop.last %} class="emm-dcta"{% endif %}>{{ link.title }}</a>
+        {%- endfor -%}
+        <a href="{{ routes.account_url }}">Account</a>
+        <a href="{{ section.settings.wishlist_url | default: '#' }}">Wishlist</a>
+      </div>
+    </div>
+
+    {%- for link in shopby.links -%}
+      {%- if link.links.size > 0 -%}
+        <div class="emm-panel" data-panel="{{ section.id }}-p{{ forloop.index }}">
+          <div class="emm-dhead">
+            <button type="button" class="emm-back" data-back>← Back</button>
+          </div>
+          <p class="emm-dtitle">{{ link.title }}</p>
+          <a href="{{ link.url }}" class="emm-dall">Shop All {{ link.title }} <span>›</span></a>
+          {%- for col in link.links -%}
+            {%- if col.links.size > 0 -%}
+              <p class="emm-dlabel">{{ col.title }}</p>
+              <div class="emm-dlinks">
+                {%- for item in col.links -%}
+                  {%- assign first_word = item.title | downcase | slice: 0, 8 -%}
+                  {%- unless first_word == 'shop all' -%}<a href="{{ item.url }}">{{ item.title }}</a>{%- endunless -%}
+                {%- endfor -%}
+              </div>
+            {%- else -%}
+              <div class="emm-dlinks"><a href="{{ col.url }}">{{ col.title }}</a></div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </aside>
+</div>
+
+
+<style>
+  #shopify-section-{{ section.id }}{position: relative; z-index: 30}
+  {%- if section.settings.header_sticky_behavior != 'none' %}
+  #shopify-section-{{ section.id }}{position: sticky; top: 0; transition: transform .3s ease}
+  #shopify-section-{{ section.id }}.emm-is-hidden{transform: translateY(-100%)}
+  {%- endif %}
+  {%- if overlay_header %}
+  #shopify-section-{{ section.id }}{margin-bottom: calc(-1 * var(--emm-h, 0px))}
+  {%- endif %}
+
+  #emm-{{ section.id }}{
+    {%- if section.settings.use_custom_colors %}
+    --emm-bg: {{ section.settings.bg }};
+    --emm-ink: {{ section.settings.ink }};
+    --emm-muted: {{ section.settings.muted }};
+    --emm-line: {{ section.settings.line }};
+    --emm-accent: {{ section.settings.accent }};
+    --emm-soft: {{ section.settings.accent_soft }};
+    --emm-soft2: {{ section.settings.tile_soft }};
+    {%- else %}
+    --emm-bg: var(--color-background);
+    --emm-ink: var(--color-foreground);
+    --emm-muted: color-mix(in srgb, var(--color-foreground) 72%, transparent);
+    --emm-line: var(--color-borders);
+    --emm-accent: var(--color-button-background);
+    --emm-soft: var(--color-background-alt);
+    --emm-soft2: var(--color-background-alt);
+    {%- endif %}
+    --emm-ov: {{ section.settings.overlay_text_color }};
+    --emm-pt: {{ section.settings.padding_top }}px;
+    --emm-pb: {{ section.settings.padding_bottom }}px;
+    --emm-mpt: {{ section.settings.padding_top_mobile }}px;
+    --emm-mpb: {{ section.settings.padding_bottom_mobile }}px;
+    --emm-l1-py: {{ section.settings.menu_padding }}px;
+    --emm-l1-px: {{ section.settings.menu_item_spacing }}px;
+    --emm-mega-pt: {{ section.settings.mega_padding_top }}px;
+    --emm-mega-pb: {{ section.settings.mega_padding_bottom }}px;
+    --emm-logo-w: {{ section.settings.logo_width }}px;
+    --emm-logo-p: {{ section.settings.logo_padding_desktop }}px;
+    --emm-mlogo-w: {{ section.settings.logo_max_width }}px;
+    --emm-mlogo-p: {{ section.settings.logo_padding }}px;
+    --emm-dlogo-w: {{ section.settings.drawer_logo_max_width }}px;
+    position: relative; background: var(--emm-bg); color: var(--emm-ink); transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+  }
+  #emm-{{ section.id }} a{color: inherit; text-decoration: none}
+  #emm-{{ section.id }} svg{width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; flex: none}
+
+  /* Contenedor (ancho completo / contenido) */
+  .emm .emm-wrap{box-sizing: border-box; width: 100%; padding-inline: var(--container-margin, 20px); margin-inline: auto}
+  .emm:not(.emm--full) .emm-wrap{max-width: calc(var(--ideal-width, 1400px) + 2 * var(--container-margin, 20px))}
+  .emm.emm--shadow{box-shadow: 0 2px 14px rgba(0,0,0,.08)}
+
+  /* Row 1 — layout por posición de logo */
+  .emm .emm-r1{display: grid; align-items: center; column-gap: 30px; padding-top: var(--emm-pt); padding-bottom: var(--emm-pb);
+    grid-template-columns: auto minmax(0,1fr) auto; grid-template-areas: "logo nav tools"}
+  .emm.emm--logo-center .emm-r1{grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); grid-template-areas: "nav logo tools"}
+  .emm.emm--logo-right .emm-r1{grid-template-columns: minmax(0,1fr) auto auto; grid-template-areas: "nav tools logo"}
+  .emm .emm-burger{grid-area: burger}
+  .emm .emm-logo{grid-area: logo}
+  .emm .emm-r1-nav{grid-area: nav}
+  .emm .emm-tools{grid-area: tools; display: flex; align-items: center; gap: 22px; justify-self: end}
+  .emm.emm--logo-center .emm-logo{justify-self: center}
+  .emm.emm--logo-right .emm-logo{justify-self: end}
+
+  .emm .emm-logo{font-family: "Bodoni Moda", Didot, "Times New Roman", serif; font-size: 22px; letter-spacing: .24em; text-transform: uppercase; white-space: nowrap; padding-block: var(--emm-logo-p); display: block}
+  .emm .emm-logo-img{display: block; height: auto; width: var(--emm-logo-w); max-width: 100%}
+  .emm .emm-logo--alt{display: none}
+  .emm .emm-burger{display: none; background: none; border: 0; padding: 4px; color: inherit; cursor: pointer}
+  .emm .emm-r1-nav{display: flex; gap: 26px; min-width: 0; flex-wrap: wrap}
+  .emm .emm-r1-item{position: relative}
+  .emm .emm-r1-link, .emm .emm-l1-link{font-size: 12.5px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase}
+  .emm .emm-r1-link{display: block; padding-block: 6px}
+  .emm .emm-r1-drop{position: absolute; top: 100%; left: -24px; min-width: 260px; display: flex; flex-direction: column; gap: 12px; padding: 24px;
+    background: var(--emm-bg); color: var(--emm-ink); border: 1px solid var(--emm-line); border-radius: 12px; box-shadow: 0 8px 24px rgba(28,34,48,.08);
+    opacity: 0; visibility: hidden; transform: translateY(6px); transition: .18s ease; font-size: 15px; line-height: 1.35; z-index: 2}
+  .emm .emm-r1-drop-h{margin: 0 0 4px; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--emm-ink); white-space: nowrap}
+  .emm .emm-r1-drop a{white-space: nowrap}
+  .emm .emm-r1-item:hover .emm-r1-drop, .emm .emm-r1-item:focus-within .emm-r1-drop{opacity: 1; visibility: visible; transform: none}
+  .emm .emm-r1-drop a:hover, .emm .emm-col a:hover{color: var(--emm-accent)}
+  .emm .is-bold{font-weight: 700}
+  .emm .emm-search{display: flex; align-items: center; gap: 8px; background: var(--emm-soft); border-radius: 99px; padding: 9px 16px; width: 230px; color: var(--emm-muted); box-sizing: border-box}
+  .emm .emm-search input{border: 0; background: none; outline: none; font: inherit; font-size: 13px; color: inherit; width: 100%; min-width: 0; box-shadow: none; padding: 0}
+  .emm .emm-icons{display: flex; align-items: center; gap: 18px}
+  .emm .emm-icons.is-text{font-size: 12.5px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase; white-space: nowrap}
+  .emm .emm-cart{position: relative}
+  .emm .emm-count{position: absolute; top: -7px; right: -9px; background: var(--emm-ink); color: var(--emm-bg); font-size: 10px; border-radius: 99px; min-width: 16px; height: 16px; display: grid; place-items: center; padding-inline: 4px}
+
+  /* Row 2 — Shop by */
+  .emm .emm-r2{border-top: 1px solid var(--emm-line); border-bottom: 1px solid var(--emm-line); position: relative}
+  .emm .emm-r2-list{display: flex; align-items: center; flex-wrap: wrap; gap: 6px; list-style: none; margin-block: 0; padding-block: 0}
+  .emm.emm--nav-center .emm-r2-list{justify-content: center}
+  .emm.emm--nav-right .emm-r2-list{justify-content: flex-end}
+  .emm .emm-l1-link{display: block; padding: var(--emm-l1-py) var(--emm-l1-px); color: var(--emm-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s}
+  .emm .emm-l1.is-first .emm-l1-link{color: var(--emm-ink); font-weight: 700}
+  .emm.emm--nav-left .emm-l1.is-first .emm-l1-link{padding-left: 0}
+  .emm .emm-l1:hover .emm-l1-link, .emm .emm-l1:focus-within .emm-l1-link{color: var(--emm-ink); border-bottom-color: var(--emm-accent)}
+  .emm .emm-mega{position: absolute; left: 0; right: 0; top: 100%; background: var(--emm-bg); color: var(--emm-ink); border-bottom: 1px solid var(--emm-line);
+    box-shadow: 0 16px 24px rgba(28,34,48,.06); opacity: 0; visibility: hidden; transition: opacity .18s ease, visibility .18s}
+  .emm .emm-l1.has-mega:hover .emm-mega, .emm .emm-l1.has-mega:focus-within .emm-mega, .emm .emm-l1.is-open .emm-mega{opacity: 1; visibility: visible}
+  .emm .emm-mega-inner{display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)) 1.15fr; gap: 28px; padding-top: var(--emm-mega-pt); padding-bottom: var(--emm-mega-pb); min-height: 300px}
+  .emm .emm-col{display: flex; flex-direction: column; gap: 8px; font-size: 14px; min-width: 0}
+  .emm .emm-col-h{margin: 0 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700}
+  .emm .emm-tile{border-radius: 8px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 250px;
+    background: linear-gradient(160deg, var(--emm-soft), var(--emm-soft2)); padding: 16px}
+  .emm .emm-tile-img{position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover}
+  .emm .emm-tile-ph{position: absolute; inset: 0; display: grid; place-items: center}
+  .emm .emm-tile-ph svg{width: 64px !important; height: 64px !important; stroke: var(--emm-accent) !important; stroke-width: 1.1 !important}
+  .emm .emm-tile-cap{position: relative; font-size: 14px; font-weight: 500}
+  .emm .emm-tile-img ~ .emm-tile-cap{color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.35)}
+  .emm .emm-tile-btn{position: relative; align-self: flex-start; background: var(--emm-ink); color: var(--emm-bg); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 10px 14px; border-radius: 4px}
+
+  /* Overlay (header transparente sobre la primera sección) */
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer){background: transparent; color: var(--emm-ov); box-shadow: none}
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer) .emm-r2{border-color: color-mix(in srgb, var(--emm-ov) 30%, transparent)}
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer) .emm-l1-link{color: inherit}
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer) .emm-search{background: color-mix(in srgb, var(--emm-ov) 16%, transparent); color: inherit}
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer) .emm-count{background: var(--emm-ov); color: #000}
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer) .emm-logo.has-alt .emm-logo--default{display: none}
+  .emm.emm--overlay:not(.is-solid):not(:hover):not(:focus-within):not(.is-drawer) .emm-logo.has-alt .emm-logo--alt{display: block}
+
+  /* Drawer */
+  .emm .emm-overlay{position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 40}
+  .emm .emm-drawer{position: fixed; top: 0; bottom: 0; left: 0; width: min(380px, 88vw); background: var(--emm-bg); color: var(--emm-ink); z-index: 41; transform: translateX(-100%); transition: transform .25s ease; overflow: hidden}
+  .emm.is-drawer .emm-drawer{transform: none}
+  .emm .emm-panel{position: absolute; inset: 0; overflow-y: auto; padding: 16px 20px 28px; background: var(--emm-bg); transform: translateX(100%); transition: transform .25s ease; display: flex; flex-direction: column}
+  .emm .emm-panel.is-active{transform: none}
+  .emm .emm-panel.is-behind{transform: translateX(-30%)}
+  .emm .emm-dhead{display: flex; align-items: center; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--emm-line); margin-bottom: 14px}
+  .emm .emm-dlogo{padding-block: 0}
+  .emm .emm-dlogo .emm-logo-img{width: var(--emm-dlogo-w)}
+  .emm .emm-x, .emm .emm-back{background: none; border: 0; font: inherit; font-size: 14px; color: inherit; cursor: pointer; padding: 4px 0}
+  .emm .emm-dlabel{font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; margin: 14px 0 6px; color: var(--emm-muted)}
+  .emm .emm-dtitle{font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin: 0 0 8px}
+  .emm .emm-dlist{list-style: none; margin: 0; padding: 0}
+  .emm .emm-dlist button, .emm .emm-dlist a, .emm .emm-dall{display: flex; justify-content: space-between; width: 100%; background: none; border: 0; border-bottom: 1px solid var(--emm-line);
+    font: inherit; font-size: 15px; color: inherit; padding: 13px 0; cursor: pointer; text-align: left}
+  .emm .emm-dlinks{display: flex; flex-direction: column}
+  .emm .emm-dlinks a{padding: 9px 0; font-size: 15px}
+  .emm .emm-dfoot{margin-top: auto; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--emm-muted)}
+  .emm .emm-dcta{order: -1; background: var(--emm-ink); color: var(--emm-bg) !important; text-align: center; padding: 12px; border-radius: 4px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px}
+
+  @media (max-width: 989px){
+    .emm .emm-r1{column-gap: 14px; padding-top: var(--emm-mpt); padding-bottom: var(--emm-mpb);
+      grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) !important; grid-template-areas: "burger logo tools" !important}
+    .emm.emm--mlogo-left .emm-r1{grid-template-columns: auto minmax(0,1fr) auto !important}
+    .emm .emm-burger{display: block; justify-self: start}
+    .emm .emm-r1-nav, .emm .emm-search, .emm .emm-r2, .emm .emm-wish{display: none}
+    .emm .emm-logo{justify-self: center !important; font-size: 18px; padding-block: var(--emm-mlogo-p)}
+    .emm.emm--mlogo-left .emm-logo{justify-self: start !important}
+    .emm .emm-r1 .emm-logo-img{width: var(--emm-mlogo-w)}
+    .emm .emm-tools{gap: 14px}
+  }
+  @media (min-width: 990px){
+    .emm .emm-drawer, .emm .emm-overlay{display: none !important}
+  }
+</style>
+
+<script>
+  (function(){
+    var root = document.getElementById('emm-{{ section.id }}');
+    if (!root || root.dataset.ready) return; root.dataset.ready = '1';
+    var overlay = root.querySelector('.emm-overlay'), drawer = root.querySelector('.emm-drawer'), burger = root.querySelector('[data-emm-open]');
+    var panels = root.querySelectorAll('.emm-panel'), rootPanel = root.querySelector('[data-panel="root"]');
+    function reset(){ panels.forEach(function(p){ p.classList.remove('is-active','is-behind'); }); rootPanel.classList.add('is-active'); }
+    function open(){ root.classList.add('is-drawer'); overlay.hidden = false; drawer.setAttribute('aria-hidden','false'); burger.setAttribute('aria-expanded','true'); document.documentElement.style.overflow='hidden'; }
+    function close(){ root.classList.remove('is-drawer'); overlay.hidden = true; drawer.setAttribute('aria-hidden','true'); burger.setAttribute('aria-expanded','false'); document.documentElement.style.overflow=''; setTimeout(reset, 260); }
+    burger.addEventListener('click', open);
+    root.querySelectorAll('[data-emm-close]').forEach(function(b){ b.addEventListener('click', close); });
+    root.querySelectorAll('[data-go]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var p = root.querySelector('[data-panel="'+b.dataset.go+'"]');
+        rootPanel.classList.remove('is-active'); rootPanel.classList.add('is-behind'); p.classList.add('is-active');
+      });
+    });
+    root.querySelectorAll('[data-back]').forEach(function(b){
+      b.addEventListener('click', function(){ b.closest('.emm-panel').classList.remove('is-active'); rootPanel.classList.remove('is-behind'); rootPanel.classList.add('is-active'); });
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key !== 'Escape') return;
+      if (root.classList.contains('is-drawer')) close();
+      root.querySelectorAll('.emm-l1.is-open').forEach(function(li){ li.classList.remove('is-open'); });
+      if (document.activeElement && root.contains(document.activeElement)) document.activeElement.blur();
+    });
+    // Sticky / overlay (mismas opciones que el Header del theme)
+    var wrap = root.closest('.shopify-section') || root.parentElement;
+    var mode = root.dataset.sticky, isOverlay = root.classList.contains('emm--overlay'), lastY = window.scrollY;
+    function setH(){ wrap.style.setProperty('--emm-h', root.offsetHeight + 'px'); }
+    setH();
+    if ('ResizeObserver' in window) new ResizeObserver(setH).observe(root); else window.addEventListener('resize', setH);
+    function onScroll(){
+      if (!root.isConnected) return window.removeEventListener('scroll', onScroll);
+      var y = window.scrollY;
+      if (isOverlay) root.classList.toggle('is-solid', mode !== 'none' && y > 5);
+      if (mode === 'scroll'){
+        var busy = root.classList.contains('is-drawer') || root.matches(':hover') || root.contains(document.activeElement);
+        if (y > lastY && y > wrap.offsetTop + root.offsetHeight && !busy) wrap.classList.add('emm-is-hidden');
+        else if (y < lastY) wrap.classList.remove('emm-is-hidden');
+      }
+      lastY = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // aria-expanded on hover/focus for desktop
+    root.querySelectorAll('.emm-l1.has-mega').forEach(function(li){
+      var a = li.querySelector('.emm-l1-link');
+      li.addEventListener('mouseenter', function(){ a.setAttribute('aria-expanded','true'); });
+      li.addEventListener('mouseleave', function(){ a.setAttribute('aria-expanded','false'); });
+      // Touch tablets: first tap opens, second follows link
+      a.addEventListener('click', function(e){
+        if (window.matchMedia('(hover: none)').matches && !li.classList.contains('is-open')){
+          e.preventDefault(); root.querySelectorAll('.emm-l1.is-open').forEach(function(x){ x.classList.remove('is-open'); }); li.classList.add('is-open');
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Embark mega menu",
+  "class": "section-emm",
+  "tag": "header",
+  "enabled_on": { "groups": ["header"] },
+  "settings": [
+    { "type": "paragraph", "content": "Opciones equivalentes al Header del theme: colores, layout, sticky, paddings, logo y overlay." },
+    { "type": "header", "content": "Colores" },
+    { "type": "checkbox", "id": "use_custom_colors", "label": "Usar colores personalizados", "info": "Desactivalo para usar un esquema de color del theme.", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Esquema de color del header", "default": "default", "visible_if": "{{ section.settings.use_custom_colors == false }}" },
+    { "type": "color", "id": "bg", "label": "Fondo", "default": "#FFFFFF", "visible_if": "{{ section.settings.use_custom_colors }}" },
+    { "type": "color", "id": "ink", "label": "Texto", "default": "#1C2230", "visible_if": "{{ section.settings.use_custom_colors }}" },
+    { "type": "color", "id": "muted", "label": "Texto secundario", "default": "#5D6575", "visible_if": "{{ section.settings.use_custom_colors }}" },
+    { "type": "color", "id": "line", "label": "Líneas", "default": "#DCDEE3", "visible_if": "{{ section.settings.use_custom_colors }}" },
+    { "type": "color", "id": "accent", "label": "Acento (subrayado / hover)", "default": "#94712F", "visible_if": "{{ section.settings.use_custom_colors }}" },
+    { "type": "color", "id": "accent_soft", "label": "Acento suave (buscador / tile)", "default": "#F2EADB", "visible_if": "{{ section.settings.use_custom_colors }}" },
+    { "type": "color", "id": "tile_soft", "label": "Tile degradé (2º color)", "default": "#E4E8F0", "visible_if": "{{ section.settings.use_custom_colors }}" },
+
+    { "type": "header", "content": "Navegación" },
+    { "type": "link_list", "id": "row1_menu", "label": "Row 1 · Brand + services" },
+    { "type": "link_list", "id": "shopby_menu", "label": "Level 1 · SHOP BY + categorías", "info": "Nivel 2 = columnas, nivel 3 = links. Ítems sin hijos = link directo." },
+    { "type": "checkbox", "id": "show_drop_heading", "label": "Mostrar título en los dropdowns de Row 1", "info": "Ej.: ABOUT, STORES & EXPERIENCES, BOOK AN APPOINTMENT.", "default": true },
+    { "type": "text", "id": "bold_titles", "label": "Links en negrita", "info": "Títulos separados por coma. 'Shop All…' ya va en negrita.", "default": "Bridal Appointment" },
+
+    { "type": "header", "content": "Header" },
+    { "type": "checkbox", "id": "enable_full_width", "label": "Ancho completo", "default": true },
+    { "type": "select", "id": "logo_position", "label": "Posición del logo (desktop)", "default": "left", "options": [
+      { "value": "left", "label": "Izquierda" },
+      { "value": "center", "label": "Centro" },
+      { "value": "right", "label": "Derecha" }
+    ] },
+    { "type": "select", "id": "logo_position_mobile", "label": "Posición del logo (mobile)", "default": "center", "options": [
+      { "value": "left", "label": "Izquierda" },
+      { "value": "center", "label": "Centro" }
+    ] },
+    { "type": "select", "id": "menu_alignment", "label": "Alineación del menú Shop by", "default": "left", "options": [
+      { "value": "left", "label": "Izquierda" },
+      { "value": "center", "label": "Centro" },
+      { "value": "right", "label": "Derecha" }
+    ] },
+    { "type": "select", "id": "header_sticky_behavior", "label": "Header fijo (sticky)", "default": "none", "options": [
+      { "value": "none", "label": "No" },
+      { "value": "fixed", "label": "Siempre visible" },
+      { "value": "scroll", "label": "Visible al scrollear hacia arriba" }
+    ] },
+    { "type": "checkbox", "id": "header_uses_icons", "label": "Usar íconos", "info": "Si se desactiva, muestra texto (Account, Cart).", "default": true },
+    { "type": "checkbox", "id": "show_search", "label": "Mostrar buscador", "default": true },
+    { "type": "text", "id": "search_placeholder", "label": "Placeholder del buscador", "default": "Search…", "visible_if": "{{ section.settings.show_search }}" },
+    { "type": "checkbox", "id": "show_wishlist", "label": "Mostrar Wishlist", "default": true },
+    { "type": "url", "id": "wishlist_url", "label": "Link de Wishlist", "visible_if": "{{ section.settings.show_wishlist }}" },
+    { "type": "checkbox", "id": "header_shadow", "label": "Sombra del header", "default": false },
+
+    { "type": "header", "content": "Paddings · Desktop" },
+    { "type": "range", "id": "padding_top", "label": "Padding superior", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 18 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding inferior", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 18 },
+    { "type": "range", "id": "menu_padding", "label": "Padding vertical del menú Shop by", "min": 0, "max": 40, "step": 1, "unit": "px", "default": 12 },
+    { "type": "range", "id": "menu_item_spacing", "label": "Espacio entre ítems del menú", "min": 0, "max": 40, "step": 1, "unit": "px", "default": 10 },
+    { "type": "range", "id": "mega_padding_top", "label": "Mega menú · padding superior", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 26 },
+    { "type": "range", "id": "mega_padding_bottom", "label": "Mega menú · padding inferior", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 30 },
+    { "type": "header", "content": "Paddings · Mobile" },
+    { "type": "range", "id": "padding_top_mobile", "label": "Padding superior", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 12 },
+    { "type": "range", "id": "padding_bottom_mobile", "label": "Padding inferior", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 12 },
+
+    { "type": "header", "content": "Logo" },
+    { "type": "image_picker", "id": "logo", "label": "Logo (imagen)" },
+    { "type": "text", "id": "logo_text", "label": "Logo (texto, si no hay imagen)", "default": "EMBARK" },
+    { "type": "range", "id": "logo_width", "label": "Ancho máximo del logo (desktop)", "min": 30, "max": 300, "step": 10, "unit": "px", "default": 150 },
+    { "type": "range", "id": "logo_padding_desktop", "label": "Padding del logo (desktop)", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "logo_max_width", "label": "Ancho máximo del logo (mobile)", "min": 30, "max": 300, "step": 10, "unit": "px", "default": 120 },
+    { "type": "range", "id": "logo_padding", "label": "Padding del logo (mobile)", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 },
+
+    { "type": "header", "content": "Header transparente (overlay)", "info": "El header se superpone a la primera sección y se vuelve sólido al pasar el mouse o al scrollear (si es sticky)." },
+    { "type": "checkbox", "id": "overlay_index", "label": "Activar en la home", "default": false },
+    { "type": "checkbox", "id": "overlay_collection", "label": "Activar en colecciones", "default": false },
+    { "type": "textarea", "id": "overlay_handles", "label": "Activar en estos handles", "info": "Un handle por línea (páginas, productos, etc.)." },
+    { "type": "color", "id": "overlay_text_color", "label": "Color del texto en overlay", "default": "#FFFFFF" },
+    { "type": "image_picker", "id": "logo_with_background_color", "label": "Logo para overlay", "info": "Versión clara del logo para usar sobre imágenes." },
+
+    { "type": "header", "content": "Logo del drawer (mobile)" },
+    { "type": "select", "id": "drawer_logo", "label": "Logo en el drawer", "default": "none", "options": [
+      { "value": "none", "label": "Texto" },
+      { "value": "header", "label": "Logo del header" },
+      { "value": "overlay", "label": "Logo de overlay" },
+      { "value": "custom", "label": "Personalizado" }
+    ] },
+    { "type": "image_picker", "id": "drawer_logo_image", "label": "Logo personalizado", "visible_if": "{{ section.settings.drawer_logo == 'custom' }}" },
+    { "type": "range", "id": "drawer_logo_max_width", "label": "Ancho del logo del drawer", "min": 30, "max": 200, "step": 10, "unit": "px", "default": 100, "visible_if": "{{ section.settings.drawer_logo != 'none' }}" }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Featured tile",
+      "settings": [
+        { "type": "text", "id": "menu_item", "label": "Categoría (título exacto del ítem de menú)", "default": "Earrings" },
+        { "type": "image_picker", "id": "image", "label": "Imagen" },
+        { "type": "text", "id": "caption", "label": "Texto", "default": "Feature: Flat Back Earrings" },
+        { "type": "text", "id": "button_label", "label": "Botón (reemplaza el texto)" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Embark mega menu",
+      "blocks": [
+        { "type": "tile", "settings": { "menu_item": "Shop by", "caption": "Feature: New for Fall" } },
+        { "type": "tile", "settings": { "menu_item": "Bridal", "caption": "Feature: Previous Designs" } },
+        { "type": "tile", "settings": { "menu_item": "Earrings", "caption": "Feature: Flat Back Earrings" } },
+        { "type": "tile", "settings": { "menu_item": "Necklaces", "caption": "Feature: Personalized Necklaces" } },
+        { "type": "tile", "settings": { "menu_item": "Bracelets", "caption": "Feature: Tennis Bracelets" } },
+        { "type": "tile", "settings": { "menu_item": "Rings", "caption": "Feature: Stackable Rings" } },
+        { "type": "tile", "settings": { "menu_item": "Charms", "caption": "Feature: Personally You Charms" } },
+        { "type": "tile", "settings": { "menu_item": "Fine Jewelry", "caption": "Feature: Diamond Rings" } },
+        { "type": "tile", "settings": { "menu_item": "Custom", "caption": "", "button_label": "Book a Custom Appointment" } },
+        { "type": "tile", "settings": { "menu_item": "Gifts", "caption": "Feature: All Gifts" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
